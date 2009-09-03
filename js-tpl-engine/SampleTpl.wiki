@@ -1,0 +1,39 @@
+(based on http://code.google.com/p/tpl-engine/wiki/SampleTpl)
+
+If you have ever used a kind of smarty engine, you should be familiar with how this will work...
+
+First off, tpl-engine is not as powerful as Smarty is, however, it is a LOT smaller, and no doubt, a whole lot faster. tpl-engine cannot do for loops, while loops and such embedded in the tpl files.
+
+===Example===
+A simple example of a tpl file
+{{{
+<html>
+<head>
+  <title>{P_TITLE}</title>
+  <meta name="description" content="{M_DESC}"/>
+  <meta name="keywords" content="{M_KEYWORDS}"/>
+</head>
+<body>
+<div id="content">
+{P_CONTENT}
+</div>
+</body>
+</html>
+}}}
+
+This is what the Javascript code would be to use the above template
+{{{
+<script type="text/javascript" src="tpl_engine.class.php"></script>
+<script type="text/javascript">
+require_once('tpl_engine.class.php');
+var tpl = new Template();
+tpl.assignVars({
+  'P_TITLE': 'My Title',
+  'M_DESC': 'Page Meta Description :)',
+  'M_KEYWORDS': 'My, keywords, for, meta',
+  'P_CONTENT': '<p>Content :D</p>'
+});
+$tpl.fileTpl('template.tpl');
+</script>
+}}}
+Simple enough huh?
