@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+<title>Sandbox</title>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<style type="text/css" media="screen">
+body { background-color: #000; font: 16px Helvetica, Arial; color: #fff; }
+</style>
+</head>
+<body>
+<table style="position:absolute;width: 98%; height: 98%">
+<tr>
+<td>
+
+  <textarea id="keys" style="height: 500px;">a 
+b 
+c 
+d 
+e 
+f 
+g 
+h 
+i 
+j 
+k 
+l 
+m 
+n 
+o 
+p 
+q 
+r 
+s 
+t 
+u 
+v 
+w 
+x 
+y 
+z 
+</textarea>
+</td>
+<td style="width: 120px">
+<button onclick="mode=mode?0:1">Toggle Mode</button><br>
+  <div id="ays" style="font-size: x-small"></div>
+</td>
+<td>
+
+
+      <textarea id="ciphertext" style="height: 250px; width: 400px;float: right"></textarea>   
+
+
+    <p id="hello"></p>
+ </td>
+    </tr>
+    </table>
+    
+    
+    
+<script>
+
+function analyze(combined){
+  
+  var lastel = "";
+  var lastcount = 0;
+  var out = []
+  combined.split("").sort().map(function(el){
+    if(el != lastel){
+      out.push([lastcount, lastel])
+      lastel = el;
+      lastcount = 0;
+    }else{
+      lastcount++;
+    }
+  });
+  return out.sort(function(a,b){
+    return b[0]-a[0]
+  }).map(function(el){
+    return el[1] + ":" + el[0]
+  }).join("<br>")
+}
+
+var index = {}
+var mode = 0;
+function reindex(){
+  index = {}
+  $.each($("#keys").val().split("\n"), function(nm, ln){
+    var tp = ln.split(" ")
+    if(tp[0] && tp[1]){
+      
+      index[$.trim(tp[mode?0:1])] = $.trim(tp[mode?1:0])
+    }
+  })
+}
+$("#keys").keyup(function(){
+  reindex()
+  encode()
+  
+$("#ays").html(analyze($("#ciphertext").val()))
+})
+
+$("#ciphertext").keyup(function(){
+  reindex()
+  
+$("#ays").html(analyze($("#ciphertext").val()))
+  encode()
+})
+
+setInterval(function(){
+  reindex()
+  encode()
+  
+$("#ays").html(analyze($("#ciphertext").val()))
+},10000)
+
+function encode(){
+  $("#hello").html($.map($("#ciphertext").val().split(""), function(val){
+    if(val == "\n"){return "<br>"}
+    if(val == " " ){return " "}
+    if(index[val]){
+      return index[val]
+    }else{
+      return "?";
+    }
+  }).join(""))
+}</script></body>
+</html>
