@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.3/jquery.min.js"></script>
+<script src="http://plugins.jquery.com/files/jquery.color.js.txt"></script>
+<title>Subleq Debugger</title>
+</head>
+<body>
+Memory Viewer
+<button onclick="load();window.test = new subleq_debugger();">Load</button>
+<button onclick="test.play()">Play</button>
+<button onclick="test.stop()">Stop</button>
+<div id="mem" style="background-color: #D3D3D3;">
+
+</div>
+<textarea style="width: 100%; height: 500px" id="text">
+12 12 3 36 37 6 37 12 9 37 
+37 12 0 -1 15 38 36 18 12 12 
+21 52 37 24 37 12 27 37 37 
+30 36 12 -1 37 37 0 39 0 -1 
+72 101 108 108 111 44 32 87 
+111 114 108 100 33 52
+</textarea>
+Output
+<div id="out" style="background-color: #D3D3D3;">
+</div>
+Status
+<div id="stat" style="background-color: #D3D3D3;">
+</div>
+<script>
+var start = [];
+//var start =  [40, 38, 33, 36, 38, 6, 37, 37, 9, 39, 40, 12, 40, 37, 15, 40, 40, 18, 38, 40, 21, 40, 37, 40, 40, 40, 27, 37, -1, 30, 40, 40, 0, 40, 40, -1, 1, 0, 26, 65, 0];
+
+function load(){
+  var text = $("#text").val();
+  $.each(text.replace(/\r?\n/g,"").split(" "), function(){
+    if(!isNaN(parseInt(this))){
+      start.push(parseInt(this));
+    }
+  });
+  $("#text").hide();
+  }
+$(function(){
+  //window.test = new subleq_debugger();
+})
+
+
+function subleq_debugger(){
+  var mem = this.mem = []
+  this.ip = 0;
+  this.c = 0;
+  
+  $.each(start,function(x,i){
+    mem.push([this, $("<span> "+this+" </span>")
+      .css("background-color","#D3D3D3")
+      .appendTo("#mem")]);
+  })
+}
+
+subleq_debugger.prototype.play = function(){
+  var sd = this;
+  this.dostop = false;
+  (function(){
+    if(!sd.dostop){
+      sd.step();
+      setTimeout(arguments.callee, 200);
+    }
+  })()
+}
+
+subleq_debugger.prototype.stop = function(){
+  this.dostop = true;
+}
+
+subleq_debugger.prototype.highlight = function(cell, color){
+          this.mem[cell][1].animate({
+            backgroundColor: color
+          })
+          .animate({
+            backgroundColor: "#D3D3D3"
+          })
+}
+
+subleq_debugger.prototype.step = function(){
+    this.c++;
+    $("#stat").text("Step: "+this.c)
+    if(this.ip + 3 > this.mem.length){
+      console.error("Incomplete Instruction",this.ip,this.mem.slice(this.ip));
+      return;
+    }
+
+    var a = this.mem[this.ip][0];
+    var b = this.mem[this.ip + 1][0];
+    var c = this.mem[this.ip + 2][0];
+    
+    this.highlight(this.ip, "orange");
+    this.highlight(this.ip+1, "orange");
+    this.highlight(this.ip+2, "orange");
+    
+    if(b == -1){
+      $("#out").html($("#out").html() + String.fromCharCode(this.mem[a][0]).replace("\n","<br>").replace(" ","&nbsp;"))
+      //console.info(String.fromCharCode(this.mem[a][0]), "("+this.mem[a][0]+")");
+      this.ip += 3;
+    }else{
+      if(!this.mem[b]){
+      this.mem[b] = [0,$("<span> "+b+" </span>")
+      .css("background-color","#D3D3D3")
+      .appendTo("#mem")]}
+      var ma = this.mem[a][0];
+      if(this.mem[b][0] != this.mem[b][0] - ma){
+        this.mem[b][0] = this.mem[b][0] - ma;
+        this.mem[b][1].text(this.mem[b][0])
+        this.highlight(b, "red");
+        this.highlight(a, "green");
+        //highlight mem[b]
+      }
+      
+      if(this.mem[b][0] > 0){
+        //continue normal operation
+        this.ip += 3;
+      }else{
+        //less than or equal to zero
+        this.ip = c;
+      }
+    }
+}
+
+</script>
+</body>
+</html>

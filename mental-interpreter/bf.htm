@@ -1,0 +1,99 @@
+<html>
+  <head>
+    <title>Mental VM</title>
+    
+    <script>
+    
+    
+maxmem = 4000;
+out = ""
+codestr = "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>."
+mem = new Array(maxmem);  
+//init
+  for (i=0; i<maxmem; i++) mem[i] = 0;
+  ptr = 0;
+  loopstack = Array();
+  i = 0;
+
+  function ctrp(x){
+   for(var q = 0, o = x.charAt(0); q < x.length; q++){
+    if(x.charAt(q)!=o){return q}
+   }
+  }
+
+
+function iterate()
+{
+  switch (codestr.charAt(i))
+  {
+  case "[":
+    if (mem[ptr]!=0) loopstack.push(i);
+    else i = codestr.indexOf("]",i);
+    i++;
+    break;
+  case "]":
+    i = loopstack[loopstack.length-1];
+    loopstack.splice(0,loopstack.length-2)
+    break;
+  case "+":
+    var ct = ctrp(codestr.substr(i));
+    //console.log("add", ct)
+    
+    if(ct==1||mem[ptr]==0){var inp=mem[ptr]+ct}else{var inp = prompt("What is "+mem[ptr]+"+"+ct+"?")};
+    if(inp === null){return alert("Cancelled!")}
+    mem[ptr]=
+    parseInt(inp);
+    i+=ct;
+    break;
+  case "-":
+    var ct = ctrp(codestr.substr(i));
+    //console.log("sub", ct)
+     if(ct==1||mem[ptr]==0){var inp=mem[ptr]-ct}else{var inp = prompt("What is "+mem[ptr]+"-"+ct+"?")}
+    if(inp === null){return alert("Cancelled!")}
+    mem[ptr]=parseInt(inp);
+    i+=ct;
+    break;
+  case "<":
+    var ct = ctrp(codestr.substr(i));
+    //console.log("ptrsub", ct)
+     if(ct==1||ptr==0){var inp=ptr-ct}else{var inp = prompt("What is "+ptr+"-"+ct+"?")}
+    if(inp === null){return alert("Cancelled!")}
+    ptr=parseInt(inp)
+    i+=ct;
+    break;
+  case ">":
+    var ct = ctrp(codestr.substr(i));
+    //console.log("ptradd", ct)
+     if(ct==1||ptr==0){var inp=ptr+ct}else{var inp = prompt("What is "+ptr+"+"+ct+"?")}
+    if(inp === null){return alert("Cancelled!")}
+    ptr=parseInt(inp);
+    i+=ct;
+    break;
+  case ".":
+    //console.log(String.fromCharCode(mem[ptr]));
+    document.getElementById("awt").innerHTML += String.fromCharCode(mem[ptr]);
+    i++;
+    break;
+  case ",":
+    input = prompt("BF program input:","");
+    mem[ptr] = input.charCodeAt(0);
+    i++;
+    break;
+  default:
+    i++;
+    break;
+  }
+  if(ptr < 0)ptr=0;
+  if(mem[ptr] < 0)ptr=0;
+  
+  iterate()
+}
+
+
+    </script>
+  </head>
+  <body>
+  <button onclick="iterate()">Start</button>
+  <div id="awt">Output:</div>
+  </body>
+</html>
