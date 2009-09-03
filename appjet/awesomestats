@@ -1,0 +1,55 @@
+/* appjet:version 0.1 */
+import("storage");
+if(!storage.data){
+    storage.data = new StorableCollection();
+}
+if(request.path.substr(0,3)=="/s/"){
+page.setMode("plain");
+var usid = Math.random()
+storage.data.add({
+    user: request.path.substr(3),
+    useragent: request.headers["User-Agent"],
+    ip: request.clientAddr,  
+    usid: usid
+})
+response.setHeader("content-type","text/javascript")
+response.setCacheable(false)                                    
+print(raw("""(function(d,n,s,z){document.write('<'+'script src="'+z+
+encodeURIComponent([d.referrer,d.title,location.href,(new Date()).getTime(),"""+usid+""",
+n.userAgent,n.vendor,n.platform,n.language,s.width,s.height,s.pixelDepth,history.length,
+n.plugins.length,n.cookiesEnabled,document.cookie].join(']*'))+'"><'+'/scr'+'ipt>')
+})(document,navigator,screen,"http://awesomestats.appjet.com/u/"""+request.path.substr(3)+"""?")"""))
+}else if(request.path.substr(0,3)=="/u/"){
+page.setMode("plain");
+response.setHeader("content-type","text/javascript")
+if(!storage.data){
+    storage.data = new StorableCollection();
+}
+var d = decodeURIComponent(request.query).split("]*");
+storage.data.add({
+    user: request.path.substr(3),
+    referrer: d[0],
+    title: d[1],
+    ip: request.clientAddr,                    
+    location: d[2],
+    date: d[3],
+    usid: d[4],
+    useragent: d[5],
+    vendor: d[6],
+    platform: d[7],
+    language: d[8],
+    width: d[9],
+    height:  d[10],
+    color: d[11],
+    history: d[12],
+    plugins: d[13],
+    hascookie: d[14],
+    cookies: d[15]
+})
+print("/*Success!*/")
+}else{
+    print(html("""
+    <script type="text/javascript" src="/s/testing"></script>
+    U R BEING LOGGED!
+    """))
+}

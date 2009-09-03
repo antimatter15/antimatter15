@@ -1,0 +1,45 @@
+/* appjet:version 0.1 */
+
+import("storage");
+var comet = import({}, "lib-comet");
+import("lib-jquery");
+import("lib-emoticons");
+
+if(request.path == "/"){
+    response.redirect("/main")
+}else if(request.isPost){
+    comet.publish(request.path, request.params)
+    
+}else{
+    print(html("""
+        <form onsubmit="postMessage();return false" id="chatform">
+            <input type="text" name="user" id="user" value="Guest"""+Math.floor(Math.random()*999)+"""">
+            <label for="data">Message:</label>
+            <input type="text" name="data" id="data" style="width: 300px">
+            <input type="submit" value="Go">
+        </form>
+        <br>
+        <div id="messagebox">
+        </div>
+    """))
+}
+
+/* appjet:client */
+var colors = ["aqua","green","navy","silver","gray","olive","teal","blue",
+"lime","purple","fuchsia","maroon","red"]
+var color = colors[Math.floor(Math.random()*colors.length)]
+
+function postMessage() {
+    var date = new Date();
+    
+    var time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+    $.post("/chat"+location.pathname, {time: time, color: color, data: $('#data')[0].value, user: $('#user')[0].value}, 
+        function() { $('#data')[0].value = "" });
+    return false;
+}
+
+$(document).ready(function() {
+    comet.subscribe("/chat"+location.pathname, function(msg) {
+        $("#messagebox").prepend($('<div><span style="color: '+msg.data.color+'">'+msg.data.user+" ("+msg.data.time+")</span>: "+msg.data.data+'</div>'));
+    });
+});

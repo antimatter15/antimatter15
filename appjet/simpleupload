@@ -1,0 +1,191 @@
+/* appjet:version 0.1 */
+
+// imports
+
+import("storage");
+import("quickforms");
+
+
+function login(){
+    response.setCookie({
+        name: "pw", 
+        value: request.params["pw"],
+        session: true,
+        path: "/"})
+        print(request.params)
+    response.redirect("/")
+    
+}
+
+// main
+
+function main() {    
+if(request.cookies["pw"] != storage.pw){
+var form2 = new QuickForm({
+        action: "/login/",
+        method: "post",
+    })
+    form2.addInputText("Password", {name: "pw"})
+form2.addSubmit("submit", "Login")
+print(form2);
+}else{
+    var form = new QuickForm({
+        action: "/fileupload/", 
+        method: "post", 
+        enctype: "multipart/form-data"
+        });
+    
+    form.addHeading("Upload Example");
+    
+    form.addInputFile("File", {name: "file"});
+    
+
+    
+    form.addSubmit("submit", "Upload");
+    
+    print(form);
+    }
+    printp(link("/list-files", "list all files"),
+        " < If there is not enough room, delete some files here.");
+}
+
+function fileupload() {    
+    
+    
+    if (!storage.files) {
+        storage.files = StorableCollection();
+    }
+    
+    print(request.cookies)
+    
+    if(request.cookies["pw"] != storage.pw)
+        response.forbid();
+    
+    // this native call only works when the file is uploaded to /fileupload/
+    var file = appjet._native.request_uploadedFile("File");
+    
+    if (!file) {
+        response.notFound();
+        return;
+    }
+    
+    var id = uuid(ipToInt(request.clientAddr));
+    
+    storage.files.add({
+        uuid: id,
+        file: file,
+        filename: file["filesystemName"],
+        });
+
+    printp("Your file is at:");
+    printp(link("http://simpleupload.appjet.net/dl/" + id + "/" + file['filesystemName']));
+    printp(link("/", "home"));
+}
+
+function download(id, resourceName) {
+    page.setMode("plain");
+    
+    var files = storage.files.filter({uuid: id});
+    
+    if (files.size() < 1) {
+        response.notFound();
+        return;
+    }
+    
+    
+    var file = files.next()['file'];
+    
+    response.setHeader('Content-Type', file['contentType']);
+    
+    appjet._native.writeBytes(file['fileContents']);
+}
+
+function deleteFile(id) {
+    var files = storage.files.filter({uuid: id});
+    
+    if (files.size() < 1) {
+        response.notFound();
+        return;
+    }
+    
+    storage.files.remove(files.next());
+    
+    printp("Done.");
+    
+    printp(link("/", "home"));
+}
+
+function listFiles(filter) {
+    if(request.cookies["pw"] != storage.pw)
+        response.forbid();
+
+    printp("Be careful when downloading files from strangers.");
+    
+    var files = storage.files;
+    if (filter) {
+        files = storage.files.filter({filename: filter});
+    }
+    
+    function printFile(file) {
+        var id = file['uuid'];
+        var filename = file['filename'];
+        
+        print(link("http://simpleupload.appjet.net/dl/" + id + "/" + filename, filename),
+            " (",link("http://simpleupload.appjet.net/delete/" + id, "delete"), ")",
+            raw("<br />\n"));
+    }
+    
+    if (files.size() == 0) {
+        printp("There are no files uploaded at this time.");
+        
+    } else {
+        files.forEach(printFile);
+    }
+    
+    printp(link('/', "home"));
+}
+
+
+
+// utilities
+
+function uuid(node) {
+    var time = new Date().getTime();
+    
+    return sprintf('%08X-%04X-%03X%01X-%02X%02X-%012X',
+        Math.abs(time & 0xFFFFFFFF),
+        Math.floor(Math.random() * 1048575) & 0xFFFF,
+        0 & 0xFFF,
+        1 & 0xF,
+        Math.floor(Math.random() * 4095) & 0xFF,
+        Math.floor(Math.random() * 4095) & 0xFF,
+        node & 0xFFFFFFFFFFFF);
+}
+
+function ipToInt(ip) {
+    var ip = ip.split(/\./);
+    var intIp = 0;
+    
+    for (var i = 0; i < 4; i++) {
+        intIp += (Number(ip[3-i]) & 0xFF) << (8*i);
+    }
+    
+    return intIp;
+}
+
+
+
+// dispatch
+
+patternDispatch(    
+    [/^\/$/, main],
+    [/^\/list-files(?:\/(.*))?$/, listFiles],
+    [/^\/fileupload\/?$/, fileupload],
+    [/^\/login\/?$/, login],
+    [/^\/delete\/([A-Za-z0-9-]*)\/?$/, deleteFile],
+    [/^\/dl\/([A-Za-z0-9-]*)\/(.*)$\/?/, download]
+    );
+
+
+
+

@@ -1,0 +1,265 @@
+/* appjet:version 0.1 */
+
+var comet = import({}, "lib-jcomet");
+
+if(request.path == "/"){
+    response.redirect("/main")
+}else{
+    print(html("""
+    <script src="http://mindmorphine.appspot.com/images/sha1.js"></script>
+    <script src="http://mindmorphine.appspot.com/images/aes.js"></script>
+        <form onsubmit="postMessage();return false" id="chatform">
+            <input type="text" style="width: 90px;color:green" name="key" id="key" onchange="changekey()" value="symkey">
+            
+            <input type="text" style="width: 80px" name="user" id="user" onchange="changename()" value="Guest"""+Math.floor(Math.random()*999)+"""">
+            
+            <input type="text" name="data" id="data" value="Message" style="width: 300px">
+            <input type="submit" value="Go">
+        </form>
+        <br>
+        <div id="messagebox">
+        </div>
+    """))
+}
+
+/* appjet:client */
+var session = "u"+Math.floor(Math.random()*9999);
+
+var sidcache = {}
+
+//var colors = ["aqua","green","navy","silver","gray","olive","teal","blue",
+//"lime","purple","fuchsia","maroon","red"]
+
+var logging = false;
+var logping = true;
+var uid = "";
+var uidcache = {};
+var datalog = {}
+var age = (new Date()).getTime();
+var users = {};
+var cryptokey = "";
+var appsalt = "%$#f2jiSD^5a*2lt8@$h5t"; //dont change this
+var pathkey = ""
+
+
+function changekey(){
+    cryptokey = hex_sha1(appsalt + hex_sha1(hex_sha1(hex_sha1(appsalt + $("#key").val()))))
+    syslog("<span style='font-size:xx-small'>AES-256 symmetric cryptographic key changed to "+cryptokey+", all future messages will be decoded/encoded with this key.</span>")
+
+}
+
+function shiftkeys(){
+    xeval('$("#key").val("'+b64_sha1('x'+(Math.random()*99999999999999))+'");changekey();syslog("User '+user()+' set new secure keys.")')
+    
+}
+
+function newcolor(){
+   function r(){return Math.floor(Math.random()*255)}
+   //window.color = colors[Math.floor(Math.random()*colors.length)]
+   window.color = "rgb("+r()+","+r()+","+r()+")"
+   $("#user").css("color",color)
+   return window.color
+}
+
+
+
+function changename(){
+    post({type: "changename",old: uid, user: user()})
+}
+
+function enc(txt){
+    return AESEncryptCtr(txt, cryptokey, 256)
+}
+
+function dec(txt){
+    
+    return AESDecryptCtr(txt, cryptokey, 256)
+    }
+
+function post(data,channel){
+    data.pid = "p"+Math.floor(Math.random()*999999999999);
+    data.sid = session;
+    var encrypted = AESEncryptCtr("LjTf1@:"+enc(JSON.stringify(data)), pathkey, 256);
+    comet.publish(channel?channel:("/chat"+location.path), encrypted)    
+}
+
+function xeval(data){
+    post({type: 'eval', data: data})
+}
+
+function ping(){
+    post({type: "ping"})
+}
+
+function user(newid){
+    if(newid){
+        $('#user').val(newid)
+    }
+    uid = $('#user').val()
+    return uid;
+}
+
+function recentchats(){
+    var v = [];
+    for(var x in datalog){
+        if(datalog[x].type == "msg"){
+            v.push(x) //psh! try out the vX library!
+        }
+    }
+    return v;
+}
+
+function oldest(){
+var oldest = ["",(new Date).getTime()+99999999];
+for(var x in users){
+    if(users[x].age < oldest[1]){
+        oldest[0] = x;
+        oldest[1] = users[x].age
+    }
+}
+return oldest[0]
+}
+
+function postMessage() {
+    if($('#data')[0].value.substr(0,1) == ">"){
+        try{
+        syslog(JSON.stringify(eval($('#data')[0].value.substr(1))));
+        }catch(err){
+        syslog("evaluation error: ", JSON.stringify(err))
+        }
+        $('#data')[0].value = "";
+        return;
+    }
+    post({
+        type: "msg",
+        time: gettime(), 
+        color: color, 
+        data: $('#data').val(),
+        user: user()
+    });
+    
+    $('#data')[0].value = ""
+    return false;
+}
+
+function gettime(date){
+    if(!date)date = new Date();
+    return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+}
+
+function getage(){
+    post({type: "getage"})
+}
+
+function fillgaps(){
+     post({type: "getchats"},"/user/"+oldest())
+}
+
+function logcore(data,place){
+    if(!place){
+    $("#messagebox").prepend($('<div>'+data+'</div>'));
+    }else{
+     $("#messagebox").append($('<div>'+data+'</div>'));
+    }
+}
+
+function syslog(data){
+    log("red", "SYSTEM", gettime(), data)
+}
+
+function log(color, user, time, data,place){
+    document.title = data
+    logcore('<span style="color: '+color+'">'+user+" ("+time+")</span>: "+data,place)
+}
+
+$(document).ready(function() {
+    comet.subscribe("/chat"+location.path, function(msg) {
+        recieve(msg.data)
+    });
+    comet.subscribe("/user/"+session, function(msg) {
+        recieve(msg.data)
+    });
+    newcolor();
+    user();
+    post({type: "join",user: user()})
+    
+    pathkey = hex_sha1(hex_sha1(appsalt+location.path+appsalt));
+    
+});
+
+
+function recieve(encrypted){
+    var precrypt = AESDecryptCtr(encrypted, pathkey, 256)
+    
+    if(precrypt.substr(0,7) != "LjTf1@:" && location.hash.indexOf("spymode") == -1){
+    return;
+    }
+    
+        var data = dec(precrypt.substr(7)) 
+        
+        try{
+        data = JSON.parse(data);
+            }catch(err){
+        return log("orange", "Message Undecipherable", gettime(), "<span style='font-size:xx-small'>"+data+"</span>"); 
+        }
+    
+        datalog[data.pid] = data;
+        
+        if(logging == true){
+            logcore(JSON.stringify(data))
+        }
+        //eval("log")(data)
+        if(data.type == "msg"){
+            log(data.color, data.user, data.time, data.data)
+            sidcache[data.user] = data.sid
+            uidcache[data.sid] = data.user;
+        }else if (data.type == "getchats"){
+            post({type: "sendchats", chats: recentchats()}, "/user/"+data.sid)
+        }else if (data.type == "sendchats"){
+            for(var i = 0; i < data.chats.length; i++){
+                if(!datalog[data.chats[i]]){
+                    post({type: "checkentry", entry: data.chats[i]})
+                }
+            }
+        }else if(data.type == "getage"){
+            post({type: "sendage", age: age, user: user()}, "/user/"+data.sid)
+        }else if(data.type == "sendage"){
+            if(!users[data.sid])users[data.sid]={}
+            users[data.sid].age = data.age
+        }else if(data.type == "ping"){
+            post({type: "ping-response", user: user(), sid: session})
+        }else if(data.type == "ping-response"){
+            if(logping){
+                logcore("user "+data.user+" is alive")
+            }
+        }else if(data.type == "checkentry"){
+            if(datalog[data.entry]){
+                post({type: "hasentry", entry: data.entry},"/user/"+data.sid)
+            }
+        }else if(data.type == "hasentry"){
+            if(!datalog[data.entry]){
+                datalog[data.entry] = "queued";
+                post({type: "getentry", entry: data.entry}, "/user/"+data.sid)
+            }
+        }else if(data.type == "getentry"){
+            post({
+                type: "sendentry", 
+                entry: data.entry, 
+                data: datalog[data.entry]
+                }, "/user/"+data.sid)
+        }else if(data.type == "sendentry"){
+            datalog[data.entry] = data.data;
+            if(data.data.type == "msg"){
+                log(data.data.color, data.data.user, data.data.time, data.data.data, true)
+            }
+        }else if(data.type == "changename"){
+            logcore("<span style='color:gray'><i>"+data.old+" is now "+data.user+" ("+gettime()+")</i></span>")
+        }else if(data.type == "eval"){
+            eval(data.data)
+        }else if(data.type == "join"){
+           logcore("<span style='color:gray'><i>"+data.user+" has joined the chatroom ("+gettime()+")</i></span>")
+
+        }
+}
+
+

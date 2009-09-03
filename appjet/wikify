@@ -1,0 +1,92 @@
+/* appjet:version 0.1 */
+import("storage");
+import("lib-json");
+
+if(!storage.db){
+    storage.db = new StorableCollection();
+}
+
+page.setMode("plain");
+
+if(request.isPost){
+    response.setContentType("text/html")
+    print("is Post, adding data...")
+    if(!request.params['data'])
+        print("Error: No Data");
+    if(!request.params['channel'])
+        print("Error: No Channel");
+    if(!request.params['url'])
+        print("Error: No URL");
+    storage.db.add({
+        ip: request.clientAddr, 
+        date: new Date(), 
+        url: request.params["url"],
+        channel: request.params['channel'],
+        data: request.params['data']
+        })
+    print("Added data to database.")
+}else{
+
+    response.setContentType("text/javascript")
+    if(request.params['channel'] && request.params['url'] && request.params['callback']){
+         var edits = [];
+         storage.db.filter({
+             channel: request.params['channel'], 
+             url: request.params['url']
+             }).limit(request.params['limit']?request.params['limit']:50)
+             .sortBy("date").forEach(function(v) {
+                edits.push({
+                    date: v.date,
+                    data: v.data
+                    })
+        });       
+        print(raw(request.params['callback']+"("+JSON.stringify({
+                edits: edits
+            })+")"))
+    }else if(request.params['callback'] && request.params['url']){
+            var channels = {};
+            storage.db.filter({url: request.params['url']}).forEach(function(v){
+                    if(!channels[v.channel]){
+                        channels[v.channel] = {
+                                edits: storage.db.filter({
+                                        url: request.params['url'],
+                                        channel: v.channel
+                                    }).size()
+                            }
+                    }
+                })
+        print(raw(request.params['callback']+"("+JSON.stringify({
+                channels: channels
+        })+")"))
+    }else if(request.params['callback']){
+        var edits = [];
+        storage.db
+        .limit(request.params['limit']?request.params['limit']:50)
+        .sortBy("date").forEach(function(v){
+            edits.push({
+                    url: v.url,
+                    channel: v.channel,
+                    date: v.date
+                })
+        })
+        
+        print(raw(request.params['callback']+"("+JSON.stringify({
+                edits: edits
+        })+")"))
+    }else if(request.params['backup']=='true'){
+        var edits = [];
+        storage.db.sortBy("date").forEach(function(v){
+            edits.push({
+                    url: v.url,
+                    channel: v.channel,
+                    date: v.date,
+                    data: v.data
+                })
+        })
+        print(raw(JSON.stringify(edits)))
+    }else{
+        page.setMode("html");
+        response.setContentType("text/html")
+        print("Project Wikify AppJet Server Implementation. V 0.15")
+    }
+}

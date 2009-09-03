@@ -1,0 +1,98 @@
+/* appjet:version 0.1 */
+
+import("lib-json");
+import("storage");
+var comet = import({}, "lib-comet");
+    
+function get_proxy(){
+    page.setMode("plain");
+    print(request.params.jsonp+"("+JSON.stringify(wget(request.params.url, {}, true))+")");
+}
+
+function get_main(){
+    page.setMode("plain");
+    response.setHeader("Content-type","text/html");
+    print("hello");    
+}
+
+function post_chat(){
+    //request.
+    comet.publish("/chat",{data:"hello world!"})
+}
+
+function get_chat(){
+    import("lib-jquery")
+    print(HTML("""
+        <div id="msg"></div>
+    """));
+}
+
+function get_files(){
+        if(!storage.files) storage.files = StorableCollection();
+        
+}
+
+function repall(str, o, n){
+    return str.split(o).join(n);
+}
+
+function datastrip(data){
+    var out = []
+    var sects = data.split("[++]");
+    for(var w = 0; w < sects.length; w++){
+        out.push(sects[w].split("[::]")[1])
+    }
+    return repall(repall(out.join("\n"),">","&gt;"),"<","&lt;");
+}
+
+function get_wikify(){
+    page.setMode("plain");
+    response.setHeader('content-type','application/xml');
+    var data = wget("http://wikify.appjet.net/?backup=true");
+    var edits = JSON.parse(data)
+    print(raw("""<?xml version="1.0"?>
+<rss version="2.0">
+  <channel>
+    <title>Wikify Feed</title>
+    <link>http://wikify.antimatter15.com</link>
+    <description>The Awesomeness of Project Wikify. And No, you can't wikify this description.</description>
+    <language>en-us</language>
+    <generator>Wikify/JSON Parser Appjet</generator>
+    <webMaster>antimatter15@gmail.com</webMaster>
+    """))
+    for(var i = 0; i < edits.length; i++){
+        print(raw(
+            """
+            <item>
+                <title>"""+edits[i].url+" in channel "+edits[i].channel+"""</title>
+                <pubDate>"""+edits[i].date+"""</pubDate>
+                <description>"""+datastrip(edits[i].data)+"""</description>
+            </item>
+            """
+            ));
+    }
+    print(raw("""    
+       </channel>
+    </rss>
+        """)); 
+}
+dispatch();
+
+/* appjet:client */
+
+function postMessage(path) {
+    $.post(decodeURIComponent(path), {msg: $('#msg')[0].value, c: $("#color")[0].value}, 
+        function() { $('#msg')[0].value = "" });
+    return false;
+}
+
+$(document).ready(function() {
+    //$(".message").each(function() { if (this.innerHTML == "") $('#'+this.id).hide()});
+    comet.subscribe("/chatdata", function(msg) {
+      alert(msg);  
+        //$("#msg"+msg.data.id).remove();
+        //$(".messagebox").append($('<div class="message" id="msg'+msg.data.id+'">'+msg.data.message+'</div>'));
+    });
+    //$("#msg").focus();
+});
+
