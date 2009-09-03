@@ -1,0 +1,16 @@
+$one = 1;
+$temp = 0;
+$ptr = 26;
+$sta = 65;
+
+startloop:
+if($ptr <= 0){
+  goto endloop;
+}
+$ptr -= $one;
+$temp = $sta;
+$temp += $ptr;
+print $temp;
+goto startloop;
+endloop:
+exit();
