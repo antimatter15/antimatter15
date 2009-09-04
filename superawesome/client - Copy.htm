@@ -1,0 +1,85 @@
+<script type="text/javascript" src="jsbn.js"></script>
+<script type="text/javascript" src="jsbn2.js"></script>
+<script type="text/javascript" src="prng4.js"></script>
+<script type="text/javascript" src="rng.js"></script>
+
+<script type="text/javascript" src="rsa.js"></script>
+<script type="text/javascript" src="rsa2.js"></script>
+
+
+<script type="text/javascript" src="aes.js"></script>
+<script type="text/javascript" src="vx.all.js"></script>
+<script type="text/javascript">
+
+var rsaKey = null;
+var rsaExp = "10001";
+var rsaBit = 256;
+var rsaCipher = "";
+var rsaPlain = "";
+var aesBit = 256;
+var aesCipher = "";
+var aesPlain = "";
+
+function genRSA(){
+  var start = (new Date).getTime()
+  rsaKey = new RSAKey();
+  rsaKey.generate(rsaBit, rsaExp);
+  var end = (new Date).getTime();
+  return end-start;
+}
+
+function sendPublic(callback){
+  _.X("a.php", function(ciphertext){
+    rsaCipher = ciphertext;
+    callback?callback():0
+  },"size="+rsaBit+"&public="+rsaKey.e+"&modulus="+rsaKey.n.toString())
+}
+
+function decryptCipher(){
+  return rsaPlain = rsaKey.decrypt(rsaCipher)
+}
+
+function AESEncode(data){
+  aesPlain = data;
+  return aesCipher = AESEncryptCtr(aesPlain, rsaPlain, aesBit)
+}
+
+function sendSymmetric(callback){
+  _.X("b.php", function(response){
+    callback?callback(response):0
+  },"size="+aesBit+"&modulus="+rsaKey.n.toString()+"&data="+encodeURIComponent(aesCipher))
+}
+
+function send(dat, cbk){
+  genRSA();
+  var start = new Date-0
+  setTimeout(function(){
+    sendPublic(function(){
+      setTimeout(function(){
+        decryptCipher();
+        setTimeout(function(){
+          AESEncode(dat);
+          setTimeout(function(){
+            sendSymmetric(function(resp){
+              cbk?cbk(resp,new Date-start):0
+            })
+          },0);
+        },0)
+      },0)
+    })
+  },0)
+}
+
+
+function test(){
+send("awesome super security poo poo",
+function(a,b){
+
+alert("Sent/Recieved Data:"+a+"\nIn "+b+"ms")
+
+
+})
+}
+</script>
+
+<button onclick="test()">Test</button>

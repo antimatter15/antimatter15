@@ -1,0 +1,37 @@
+<script type="text/javascript" src="sha2.js"></script>
+<script type="text/javascript" src="rsa_aes_mini.js"></script>
+<script type="text/javascript" src="vx.all.js"></script>
+
+<script type="text/javascript" src="superawesome.js"></script>
+<script type="text/javascript">
+var hashtimes = 42;
+var salt = "$x9(*~?q&z";
+
+function rehash(times, value){
+  if(times > 0){
+    return rehash(times-1, hex_sha256(salt + value))
+  }
+  return value
+}
+
+
+function login(f){
+(new superawesome()).send(
+f.user.value + "@" + rehash(hashtimes, f.pass.value) + "@" + Math.random()
+,function(a,b){
+if(a.indexOf("S") != -1){
+  alert("Logged In Successfully!")
+}else{
+  alert("Epic Fail!")
+}
+})
+}
+</script>
+<form onsubmit="login(this);return false">
+<label for="user">Username</label>
+<input type="text" name="user"><br>
+<label for="pass">Password</label>
+<input type="password" name="pass">
+<br>
+<input type="submit" value="Login">
+</form>
