@@ -1,0 +1,48 @@
+<html>
+<body>
+
+<script type="text/javascript">
+
+function parseXML(text){
+// code for IE
+if (window.ActiveXObject)
+  {
+  var doc=new ActiveXObject("Microsoft.XMLDOM");
+  doc.async="false";
+  doc.loadXML(text);
+  }
+// code for Mozilla, Firefox, Opera, etc.
+else
+  {
+  var parser=new DOMParser();
+  var doc=parser.parseFromString(text,"text/xml");
+  }
+
+return doc.documentElement;
+
+}
+function $(e){return document.getElementById(e)}
+function parseDocx(){
+var ct = trim(parseXML($("docxml").value),"t")
+$("testrender").innerHTML = ct
+}
+
+function trim(obj,tag){
+var ct = ""
+var texts = obj.getElementsByTagName(tag)
+for(var i = 0; i < texts.length; i++){
+ct+=texts[i].childNodes[0].nodeValue
+}
+return ct;
+}
+</script>
+<textarea id="docxml" style="width: 100%;height:25%">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:ve="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"><w:body><w:p w:rsidR="00CF3F70" w:rsidRPr="001D439C" w:rsidRDefault="001D439C"><w:r><w:tab/><w:t xml:space="preserve">The contributions of earlier microscope scientists and pioneers greatly impacted the discoveries of the later scientists. After Zacharias Janssen created the first microscope, others like Robert Hooke improved it and published his findings. Leeuwenhoek later was greatly inspired by Robert Hooke’s book </w:t></w:r><w:r><w:rPr><w:i/></w:rPr><w:t>Micrographia</w:t></w:r><w:r w:rsidR="00704303"><w:t xml:space="preserve">, to make discoveries such as protists and bacteria. Robert Brown was able to give additional detail about the nucleus of cells, observed before by Anton Van Leeuwenhoek. After Robert Brown’s discovery in 1828, Schleiden discovered plant cells, </w:t></w:r><w:r w:rsidR="00A73344"><w:t>and then</w:t></w:r><w:r w:rsidR="00704303"><w:t xml:space="preserve"> Theodor Schwann noticed the similarities between plant and animal cells.</w:t></w:r><w:r w:rsidR="00A73344"><w:t xml:space="preserve"> All of these discoveries would not have been possible without the previous contributions and inventions.</w:t></w:r></w:p><w:sectPr w:rsidR="00CF3F70" w:rsidRPr="001D439C" w:rsidSect="00CF3F70"><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/><w:cols w:space="720"/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>
+</textarea><br>
+<input type="button" onclick="parseDocx()" value="parseDocx">
+<div id="testrender" ></div>
+</body>
+</html>
+
+
