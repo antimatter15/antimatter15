@@ -1,0 +1,70 @@
+<script>
+var part = 0;
+var data = [];
+var trials = [];
+var lat = 0;
+var dict = "abcdefghijklmnopqrstuvxyz0123456789ABCDEFGHIJKLMNOPQRSTUVXYZ";
+
+function average(){
+  var avg = []
+  for(var i = 0; i < trials.length; i++){
+    for(var y = 0; y < trials[i].length; y++){
+      if(!avg[y]){avg[y]=0}
+      avg[y]+=trials[i][y];
+    }
+  }
+  for(var i = 0; i < avg.length; i++){
+    avg[i] = avg[i]/trials.length;
+  }
+  return avg;
+}
+
+function parse(f){
+  var d = "";
+  for(var i = 0; i < f.length; i++){
+    d+=dict.substr(Math.round(f[i])/100,1)
+  }
+  return d
+}
+
+
+function latency(){
+  var img = document.createElement("img")
+  img.style.width = "10px"
+  img.style.height = "10px"
+  var start = (new Date).getTime()
+  img.onload = function(){
+    lat = (new Date).getTime() - start;
+    chunk();
+  }
+  img.src = "latency.bmp?ck="+Math.random();
+  document.body.appendChild(img)
+}
+
+function chunk(){
+  var img = document.createElement("img")
+  img.style.width = "10px"
+  img.style.height = "10px"
+  var start = (new Date).getTime()
+  img.onload = function(){
+    data.push(((new Date).getTime()-start)-lat)
+    part++;
+    if(part < 5){
+      latency();
+    }else{
+      trials.push(data);
+      document.getElementById("text").innerHTML += parse(data)+"<br>"
+      data = [];
+      part = 0;
+      latency()
+    }
+  }
+
+  img.src= "delay.php?ck="+Math.random()+"&part="+part;
+  document.body.appendChild(img)
+}
+
+setTimeout(latency, 1000);
+
+</script>
+<div id="text"></div>
