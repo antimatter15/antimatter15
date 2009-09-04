@@ -1,0 +1,62 @@
+<script>
+var updateurl = "http://localhost:12345";
+var baseurl = "http://localhost:12345/base";
+var showimg = false;
+
+function update(url){
+var x=(window.ActiveXObject)?new ActiveXObject('Microsoft.XMLHTTP'):new XMLHttpRequest();
+x.open("GET", url,true);
+x.onreadystatechange = function(){
+if(x.readyState == 4){
+var jso = eval("("+x.responseText+")");
+createLayer(jso);
+}
+}
+x.send(null);
+}
+function createLayer(src){
+//{sect: [{x: 10, y: 10, dat: "adf23fk"},{x: 23....}]}
+var lay = document.createElement("div")
+lay.style.position = "absolute";
+lay.style.top = "0px";
+lay.style.left = "0px";
+
+for(var i = 0; i < src.sect.length; i++){
+var imgsec = src.sect[i];
+var imgel = createImage("data:image/png;base64,"+imgsec.dat, imgsec.x, imgsec.y);
+lay.appendChild(imgel)
+}
+
+if(src.sect.length > 0){
+document.getElementById("x").appendChild(lay)
+}
+}
+
+function createImage(src, x, y){
+var v = document.createElement("img")
+v.src = src;
+v.style.position = "absolute";
+v.style.top = y+"px";
+v.style.left = x+"px";
+if(showimg == true){
+v.style.border = "1px solid black";
+}
+return v
+}
+function start(interval){
+update("gdat.php?url="+escape(baseurl)+"&cachekiller="+Math.random())
+scu = setInterval(function(){
+update("gdat.php?url="+escape(updateurl)+"&cachekiller="+Math.random())
+},interval)
+}
+function stop(){
+clearInterval(scu);
+}
+function flush(){
+stop();
+document.getElementById("x").innerHTML = null;
+start(1000);
+}
+</script>
+<div id="x" style="position: absolute; top: 10px; left: 10px;">
+</div>
