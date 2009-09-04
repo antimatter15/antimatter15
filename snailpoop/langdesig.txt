@@ -1,0 +1,87 @@
+f{}
+
+arguments {} can be anything
+- JSON data
+- Code
+
+for{}
+
+
+{function}
+
+
+
+fun = {
+
+}
+
+
+dostuff={
+alert(a)
+alert(b)
+}
+
+dostuff{
+a=123
+b=312
+}
+
+
+equivalent of doing
+
+
+a=123
+b=312
+alert(a)
+alert(b)
+
+
+
+
+
+loop(){
+times = 10
+code = stuff
+}
+
+l{
+code stuff
+}
+
+
+
+loop =
+
+
+fn = {
+a + b
+false
+}
+
++(a=1,b=0)
+
+
+last line is return value
+
+
+fn
+  fn
+  
+  
+functionthing
+  b = somthingstuff
+    a = 100
+  
+
+
+a
+  12
+b
+  1
+fn
+  a + b
+
+
+while a
+  a
+    false

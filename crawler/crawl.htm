@@ -1,0 +1,21 @@
+<script src="misc/vxjs/lib/vx.all.js"></script>
+<script>
+var links = ["/snowcms"];
+var index = 0;
+function crawl(){
+_.X(links[index++],
+function(e){
+var f=document.createElement("div");
+f.innerHTML=e;
+var z=f.getElementsByTagName("a");
+for(var i = 0; i < z.length; i++){
+if(_.I(z[i].href,links) == -1){
+links.push(z[i].href)
+}
+}
+crawl();
+crawl();
+})
+}
+crawl();
+</script>

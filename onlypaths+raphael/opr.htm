@@ -1,0 +1,19 @@
+<script type="text/javascript" src="raphael-uncompressed.js"></script>
+<script type="text/javascript" src="vx.js"></script>
+<script type="text/javascript" src="opr.js"></script>
+<script>
+window.onload = (function(){
+  window.ope = new OPEditor("canvas", 480, 272);
+})
+</script>
+<body bgcolor="black">
+<div id="canvas" style="background-color: white; position: absolute;top:0;left:0"></div>
+</body>
+
+<div style="position: absolute; background-color: green; top: 30px; left: 500px;">
+<button onclick="ope.setMode('select')">Select</button>
+<button onclick="ope.setMode('rect')">Rect</button>
+<button onclick="ope.setMode('ellipse')">Ellipse</button>
+<button onclick="ope.setMode('path')">Path</button>
+<button onclick="ope.setMode('polygon')">Polygon</button>
+</div>

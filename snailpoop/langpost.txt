@@ -1,0 +1,90 @@
+I'm making a programming language.
+
+I'm no language design expert. I hardly know the technical terms for stuff.
+
+It's somewhat pythonic, using indentation for stuff. But this uses indentation. alot.
+
+That makes it somewhat hard to read.
+
+[code]
+a
+  12
+b
+  1
+main
+  a + b
+[/code]
+
+Basically, there's no such thing as a variable. Just a function that does a specific return. In this language, the result of the last line of code is the return value. so [tt]a[/tt] is a function that returns 12, and [tt]main[/tt] is a function that returns [tt]a + b[/tt]
+
+My working implementation basically only does up to here. So as of now, it's more of a data storage format.
+
+How do you call a function? Well you just use [tt]:main[/tt] (Not sure it's gonna be a :, maybe a @,#,$,%,&,() or something) to call the function.
+What about arguments?
+Here's something really interesting. All arguments are named. They actually aren't even arguments. they're blocks of code that execute in the function's namespace before the function's actual content.
+
+For example:
+[code]
+add
+  x + y
+[/code]
+
+If you ran 
+[code]
+:add
+  x
+    1030
+  y
+    307
+[/code]
+
+then that would be the equivalent of running
+[code]
+x
+  1030
+y
+  307
+x + y
+[/code]
+
+This somewhat makes the language more flexible.
+
+Now, venturing into the more deeper realm of uncertainty is things like loops, if statements.
+
+[code]
+?condition
+  if + statements
+[/code]
+
+[code]
+w?condition
+  while + loop
+[/code]
+
+Port of some real code to this fictional language:
+
+[code]
+a
+  1
+b
+  3
+loop
+  1
+breakpoint
+  1000
+pi
+  0
+w?loop < breakpoint
+  pi
+    pi + (4/a) - (4/b)
+  a
+    a + 4
+  b
+    b + 4
+  loop
+    loop + 1
+pi
+[/code]
+
+
+It should calculate pi.

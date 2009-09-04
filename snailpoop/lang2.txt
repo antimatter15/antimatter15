@@ -1,0 +1,122 @@
+:variable
+  1030
+
+.variable
+  neg
+    0 - top
+
+variable
+  neg
+    12
+x
+  1
+f?100
+  x += 1
+  do stuff
+  
+variable
+  1030
+
+
+?
+  variable
+    neg
+      hello
+  variable
+    neg
+      poop
+:
+  
+
+
+call 1030's neg function with 0 - undefined
+1030
+  neg
+    0 - top
+
+
+
+
+
+
+
+variable:
+  1030
+
+variable.
+  neg
+    0 - top
+  add
+    top + val
+  leet
+    1337
+
+?
+  variable
+    add
+      val
+        307
+=
+   variable
+    leet
+:
+  msg
+    "hello"
+!
+  msg
+    "poop!"
+  
+var variable = function(){return 1030}
+variable.neg = function(){return 0 - variable}
+variable.add = function(val){return variable + val}
+variable.leet = function(){return 1337}
+if(variable.add() == variable.leet()){
+  alert("hello")
+}else{
+  alert("poop!")
+}
+
+
+variable:
+  stuff:
+    1337
+  tree:
+    func
+      blah
+      
+Followed by a colon : is the data exchange format
+Numbers are 
+
+
+Interpreter vs Compiler
+
+Interpreter: parse line-by-line
+Compilier: Convert to executable javascript code
+
+variable:
+  stuff:
+    1337
+  tree:
+    func
+      blah:
+        1
+
+variable = function(){return }
+  variable.stuff = function(){return 1337}
+  variable.tree = function(){
+    func(
+    {
+      blah: 1
+    }
+    )
+  }
+  
+  
+global: {
+  variable: {
+    stuff: function(){return 1337},
+    tree: function(){
+       global.func(
+    }
+  }
+}
