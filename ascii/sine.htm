@@ -1,0 +1,36 @@
+<head> 
+<title>Sandbox</title> 
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" /> 
+<style type="text/css" media="screen"> 
+body { background-color: #000; font: 5px Monospace; color: #fff; overflow: hidden}
+ 
+</style> 
+</head> 
+<body> 
+  <pre id="hello"></pre> 
+<script type="text/javascript">o  = 0;
+ 
+ 
+setInterval(function(){
+o+=10;
+var width = 200;
+var txt = '';
+for(var i = 0; i < 200; i++){ //x axis
+ 
+var input = ((i+o))/100;
+  var v = Math.round(Math.sin(input)*((width/2)-5))+(width/2);
+  for(var x = 0; x < width; x++){ //y axis
+    if(x == v){
+      txt += '.'
+    }else{
+      txt += ' '
+    }
+  }
+  txt += '\n'
+}
+ 
+ 
+if (document.getElementById('hello')) {
+  document.getElementById('hello').innerHTML = txt;
+}
+},100)</script>
