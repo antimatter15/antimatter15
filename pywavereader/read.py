@@ -12,8 +12,9 @@ from optparse import OptionParser
 waveid = "googlewave.com!w+Mu9eK7j2H"
 
 parser = OptionParser(usage="usage: %prog [options] waveid")
+parser.add_option("-r", "--raw",action="store_true", dest="raw",help="include raw JSON")
 parser.add_option("-v", "--verbose",
-                  action="store_true", dest="verbose",help="show login info")
+                  action="store_true", dest="verbose",help="verbose")
 
 (options, args) = parser.parse_args()
 
@@ -43,6 +44,11 @@ conn.request("GET", url, "", {"Cookie": "WAVE="+cookie})
 r2 = conn.getresponse()
 print r2.status, r2.reason, r2.version
 wavejson = r2.read()[5:]
+
+if options.raw:
+  print wavejson
+  exit()
+
 wave = json.loads(wavejson)
 
 bliplist = wave['1'][0]['1']['2']
