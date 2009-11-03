@@ -35,6 +35,19 @@ BigInt.Core.prototype.lt = function(comp){
   return !this.gt(comp);
 }
 
+BigInt.Core.prototype.add = function(comp){
+  comp = BigInt(comp);
+  if(comp.str.length > this.str.length){
+    this.str = (new Array(comp.str.length-this.str.length+1)).join("0")+this.str
+  }else{  
+    comp.str = (new Array(this.str.length-comp.str.length+1)).join("0")+comp.str
+  }
+  for(var i = 0, out = ""; i < comp.str.length; i++){
+    out += parseInt(this.str[i]) + parseInt(comp.str[i]);
+  }
+  return out;
+}
+
 BigInt.Core.prototype.sub = function(comp){
   comp = BigInt(comp);
   if(this.lt(comp)) throw("Cant handle negatives");
@@ -54,4 +67,8 @@ BigInt.Core.prototype.sub = function(comp){
     }
   }
   return result.reverse().join("");
+}
+
+BigInt.Core.prototype.mul = function(comp){
+  comp = BigInt(comp)
 }
