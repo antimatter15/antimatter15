@@ -1,0 +1,11 @@
+<extension 
+    name="Word Network"
+    thumbnailUrl="http://antimatter15.com/misc/wordassoc/graffle_files/screenshot.png"
+    description="Collaborate on a linking words together and organizing concepts. Double Click on any word to link it to another or double click on the background to create an unlinked word."> 
+  <author name="antimatter15"/> 
+  <menuHook location="toolbar" text="Add Word Network Gadget"
+      iconUrl="http://antimatter15.com/misc/wordassoc/graffle_files/blatantlystolenfromxkcd.png"> 
+    <insertGadget url="http://antimatter15.com/misc/wordassoc/assoc.xml"/> 
+  </menuHook> 
+</extension> 
+

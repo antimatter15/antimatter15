@@ -1,0 +1,13 @@
+
+body {
+    background: #000;
+    color: #fff;
+    font: 300 100.1% "Gill Sans", Calibri, "Trebuchet MS", sans-serif;
+    overflow: auto;
+    }
+#holder {
+    left: 0;
+    top: 0;
+    position: absolute;
+    overflow: auto;
+}

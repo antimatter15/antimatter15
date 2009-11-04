@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+<ModulePrefs title="Word Association" height="600">
+  <Require feature="wave-preview" /> 
+</ModulePrefs>
+<Content type="html">
+<![CDATA[ 
+    <link rel="stylesheet" href="http://antimatter15.com/misc/wordassoc/graffle_files/demo.css" type="text/css" media="screen">
+    
+    <script src="http://jsvectoreditor.googlecode.com/svn/trunk/raphael.js" type="text/javascript" charset="utf-8"></script>
+    
+    <div id="holder"></div>
+    
+    <script src="http://antimatter15.com/misc/wordassoc/graffle_files/graffle.js" type="text/javascript" charset="utf-8"></script>
+    
+    
+    <script>
+      var initcount = 0;
+      
+      function init() {
+       if (wave && wave.isInWaveContainer()) {
+          wave.setStateCallback(statechange); 
+        }
+      
+        if(++initcount >= 2){
+        
+        setTimeout(function(){
+         
+          
+          if(wave.getState() == null){
+            (function(){
+              if(wave.getState() == null){
+                setTimeout(arguments.callee, 100);
+              }else{
+                statechange()
+              }
+            })()
+          }
+          
+        },0);
+        
+        }
+      }
+      gadgets.util.registerOnLoadHandler(init);
+
+    </script>
+    
+  ]]> 
+  </Content>
+</Module>
